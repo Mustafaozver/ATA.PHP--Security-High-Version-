@@ -1,0 +1,11 @@
+{
+	"Name":"Messages Application",
+	"Version":"1.0",
+	"Description":"",
+	"Keywords":["Message"],
+	"Author":"Mustafa ÖZVER",
+	"Icon":"",
+	"Dashboard":"dashboard.php",
+	"Main":"main.php",
+	"Permissions":[]
+}

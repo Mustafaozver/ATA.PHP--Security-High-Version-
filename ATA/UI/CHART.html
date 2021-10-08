@@ -1,0 +1,401 @@
+<html>
+	<head>
+		<!--<script src="./js/Borsa.js"></script>-->
+		<script src="./js/jquery.min.js"></script>
+		<script src="./js/jquery.form.js"></script>
+		<script src="./js/jquery-ui.js"></script>
+		<script src="./js/Chart.min.js"></script>
+		<script src="./js/brain-browser.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./js/bootstrap.bundle.min.js"></script>
+		<script src="./js/ata/index.js"></script>
+		<link rel="stylesheet" href="./css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="./css/bootstrap-grid.min.css" type="text/css">
+		<link rel="stylesheet" href="./css/bootstrap-reboot.min.css" type="text/css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css" type="text/css">
+	</head>
+	<body style="padding:1em;">
+	<script>
+
+	</script>
+	<script>
+
+function DrawHistoricChart(title, arr) {
+	$('#chartbg').show();
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext('2d');
+	var data = {
+		labels: Array.from(Array(arr.length).keys()),
+		datasets: [{
+			label: title,
+			data: arr,
+			pointRadius: 0,
+			borderColor:"blue",
+			fill:false,
+			borderWidth:1
+			//lineTension:0.1
+		}]
+	};
+	var myChart = new Chart(ctx,{
+		type: 'line',
+		data: data,
+		options: {
+			scales: {
+				yAxes: [{
+				}]
+			},
+			legend: {
+				display: true
+			},
+			tooltips: {
+				callbacks: {
+				}
+			}
+		}
+	});
+}
+
+function graph(title,datas) {
+	var data = [];
+	for (var i=0;i<datas.length;i++) data.push(datas[i][1]);
+	DrawHistoricChart(title, data);
+}
+
+var HEXCOLOR = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"];
+function randomcolor() {
+	var color = "#";
+	for (var i=0;i<6;i++) color += HEXCOLOR[Math.floor(11*Math.random()) + 5];
+	return color;
+}
+
+function ParseCSV(text) {
+	var PARSEF = {
+		"Date":function(data){this.push(data)},
+		"Open":function(data){this.push(eval(data))},
+		"High":function(data){this.push(eval(data))},
+		"Low":function(data){this.push(eval(data))},
+		"Close":function(data){this.push(eval(data))},
+		"Adj Close":function(data){this.push(eval(data))},
+		"Volume":function(data){this.push(eval(data))}
+	};
+	var CSV = "" + text;
+	var lines = CSV.split("\n");
+	var FLine = lines[0].split(",");
+	var DataPack = {
+		Close:[],
+		Date:[],
+		Open:[],
+		High:[],
+		Low:[],
+		"Adj Close":[],
+		Volume:[]
+	};
+	var Fs = [];
+	for (var j=0;j<FLine.length;j++) {
+		if (FLine[j]) Fs.push(PARSEF[FLine[j]]);
+		else;
+	}
+	for (var i=1;i<lines.length;i++) {
+		var row = lines[i];
+		var column = row.split(",");
+		for (var j=0;j<column.length;j++) {
+			Fs[j].apply(DataPack[FLine[j]],[column[j]]);
+			Indicators.apply(DataPack,[FLine[j],i,column.length]);
+		}
+		Indicators.apply(DataPack,["A",i,lines.length]);
+	}
+		$('#chartbg').show();
+	var canvas1 = document.getElementById("canvas1");
+	var canvas2 = document.getElementById("canvas2");
+	var ctx1 = canvas1.getContext('2d');
+	var ctx2 = canvas2.getContext('2d');
+	var data1 = {
+		labels: DataPack["Date"].slice(-500),
+		datasets:[]
+	};
+	var data2 = {
+		labels: DataPack["Date"].slice(-500),
+		datasets:[]
+	};
+	for (var key in DataPack) {
+		if (key == "Date") continue;
+		if(!DataPack.hasOwnProperty(key)) continue;
+		var newobj = new Object();
+		newobj.label = key;
+		newobj.data = DataPack[key].slice(-500);
+		var __Target = ChartOptions.apply(newobj,[key]);
+		if (__Target == "0") data1.datasets.push(newobj);
+		else if (__Target == "1") data2.datasets.push(newobj);
+	}
+	
+	window.Charts = [new Chart(ctx1,{
+		type: 'line',
+		data: data1,
+		options: {
+			scales: {
+				yAxes: [{
+				}]
+			},
+			legend: {
+				display: true
+			},
+			tooltips: {
+				callbacks: {
+				},
+				mode: 'nearest'
+			},
+			annotation: {
+				drawTime: "afterDraw",
+				annotations: lines
+			}
+		}
+	}),new Chart(ctx2,{
+		type: 'line',
+		data: data2,
+		options: {
+			scales: {
+				yAxes: [{
+				}]
+			},
+			legend: {
+				display: true
+			},
+			tooltips: {
+				callbacks: {
+				},
+				mode: 'nearest'
+			},
+			annotation: {
+				drawTime: "afterDraw",
+				annotations: lines
+			}
+		}
+	})];
+	updateChart(window.myChart);
+}
+
+function updateChart(Chart) {
+	
+}
+
+function ChartOptions(key) {
+	switch(key.toUpperCase()) {
+		default:
+		case "":
+			this.pointRadius = 0;
+			this.borderColor = randomcolor();
+			this.fill = false;
+			this.borderWidth = 1;
+			this.lineTension = 0.1;
+            this.hidden = true;
+			return "0";
+		break;
+		case "CLOSE":
+			this.pointRadius = 0;
+			this.borderColor = "white";
+			this.fill = false;
+			this.borderWidth = 2;
+			this.lineTension = 0;
+			return "0";
+		break;
+		case "HIGH":
+			this.pointRadius = 0;
+			this.borderColor = "green";
+			this.fill = false;
+			this.borderWidth = 1;
+			this.lineTension = 0;
+			return "0";
+		break;
+		case "LOW":
+			this.pointRadius = 0;
+			this.borderColor = "red";
+			this.fill = false;
+			this.borderWidth = 1;
+			this.lineTension = 0;
+			return "0";
+		break;
+		case "SMA-200":
+			this.pointRadius = 0;
+			this.borderColor = "lime";
+			this.fill = false;
+			this.borderWidth = 1;
+			this.lineTension = 0.1;
+			return "0";
+		break;
+		case "DERIVATIVE":
+			this.pointRadius = 0;
+			this.borderColor = "blue";
+			this.fill = false;
+			this.borderWidth = 1;
+			this.lineTension = 0.1;
+			return "1";
+		break;
+	}
+};
+
+function Indicators(type,time,total) {
+	Indicators_Ent[type].apply(this,[time,total]);
+}
+
+var Indicators_Ent = {
+	"A":function(time,total){
+		Indicators_Ent["SMA"].apply(this,[time,200,total]);
+		//Indicators_Ent["SMA"].apply(this,[time,100,total]);
+		//Indicators_Ent["SMA"].apply(this,[time,50,total]);
+		Indicators_Ent["MAXMIN"].apply(this,[time,100,total]);
+		if (time == total-1) Indicators_Ent["Derivative"].apply(this);
+		return;
+	},
+	"Date":function(){
+		return;
+	},
+	"Open":function(){
+		return;
+	},
+	"High":function(){
+		return;
+	},
+	"Low":function(){
+		return;
+	},
+	"Close":function(time){
+		return;
+	},
+	"Adj Close":function(){
+		return;
+	},
+	"Volume":function(){
+		return;
+	},
+	////////////////////
+	"SMA":function(time,avr) {
+		if (time == 1) {
+			this["SMA-"+avr] = [];
+		} else if (time > avr) this["SMA-"+avr].push(this["Close"].slice(-avr).Avarage());
+		  else this["SMA-"+avr].push(this["Close"].Avarage());
+	},
+	"MAXMIN":function(time,avr) {
+		var fibo = function(max,min,rate){return (max-min)*rate+min;};
+		if (time == 1) {
+			this["MAX-"+avr] = [];
+			this["MIN-"+avr] = [];
+			this["FIBO786-"+avr] = [];
+			this["FIBO618-"+avr] = [];
+			this["FIBO382-"+avr] = [];
+			this["FIBO236-"+avr] = [];
+			this["FIBO5-"+avr] = [];
+		} else if (time == 1) {
+			var PriceHigh = this["High"]?this["High"]:0;
+			var PriceLow = this["Low"]?this["Low"]:0;
+			this["MAX-"+avr].push(PriceHigh);
+			this["MIN-"+avr].push(PriceLow);
+			this["FIBO786-"+avr] = [fibo(PriceHigh,PriceLow,0.786)];
+			this["FIBO618-"+avr] = [fibo(PriceHigh,PriceLow,0.618)];
+			this["FIBO382-"+avr] = [fibo(PriceHigh,PriceLow,0.382)];
+			this["FIBO236-"+avr] = [fibo(PriceHigh,PriceLow,0.236)];
+			this["FIBO5-"+avr] = [fibo(PriceHigh,PriceLow,0.5)];
+		} else {
+			var PriceLow,PriceHigh;
+			if (time < avr) {
+				PriceHigh = this["High"].GetMax();
+				PriceLow = this["Low"].GetMin();
+			} else  {
+				PriceHigh = this["High"].slice(-avr).GetMax();
+				PriceLow = this["Low"].slice(-avr).GetMin();
+			}
+			this["MAX-"+avr].push(PriceHigh);
+			this["MIN-"+avr].push(PriceLow);
+			this["FIBO786-"+avr].push(fibo(PriceHigh,PriceLow,0.786));
+			this["FIBO618-"+avr].push(fibo(PriceHigh,PriceLow,0.618));
+			this["FIBO382-"+avr].push(fibo(PriceHigh,PriceLow,0.382));
+			this["FIBO236-"+avr].push(fibo(PriceHigh,PriceLow,0.236));
+			this["FIBO5-"+avr].push(fibo(PriceHigh,PriceLow,0.5));
+		}
+	},
+	"Derivative":function() {
+		this["Derivative"] = this["Close"].Derivative();
+	},
+};
+
+var openFile = function(event) {
+	var input = event.target;
+	var reader = new FileReader();
+	reader.onload = function(){
+		var text = reader.result;
+		ParseCSV(text);
+	};
+	reader.readAsText(input.files[0]);
+};
+
+function Predict() {
+	var config = {
+		inputSize: 1,
+		inputRange: 0001,
+		activation: 'sigmoid', // supported activation types: ['sigmoid', 'relu', 'leaky-relu', 'tanh'],
+		hiddenLayers: [3,5,7,5,3],
+		outputSize: 1,
+		learningRate: 0.01,
+		decayRate: 0.999,
+	};
+	
+	/*
+	var net1 = new brain.recurrent.RNNTimeStep(config);
+	var net2 = new brain.recurrent.LSTMTimeStep(config);
+	var net3 = new brain.recurrent.GRUTimeStep(config);
+	*/
+	var scale = DataPack.Close.GetMax();
+	var scaledData = DataPack.Close.map(function(item){
+	 return item/scale;
+	}).slice(-10);
+	var net = new brain.recurrent.RNNTimeStep(config);
+	config.inputRange = scaledData;
+	net.train([
+		scaledData
+	]);
+	console.log(net.run(scaledData)*scale);
+}
+
+	</script>
+	<table id="table" style="width:100%;height:100%;">
+		<tr style="height:30px;"><td></td><td>
+			<input onchange="openFile(event)" type="file" id="file-selector" accept=".csv">
+		</td></tr>
+		<tr style="height:30px;"><td></td><td>
+			<button class="btn btn-dark" onclick="ATA.Borsa.Timer.reset();">Reset</button>
+			<button class="btn btn-dark" onclick="ATA.Borsa.Update();">Update</button>
+			<button class="btn btn-dark" onclick="ATA.Borsa.DoStrategy();">Strategy</button>
+		</td></tr>
+		<tr><td style="vertical-align:top;">
+			<div id="exchanges"></div>
+		</td><td>
+			<canvas id="canvas1" width="800" height="650"  style="background-color:#101010;"></canvas><br/>
+			<canvas id="canvas2" width="800" height="650"  style="background-color:#00008c;"></canvas>
+		</td></tr>
+	</table>
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Modal Header</h4>
+			</div>
+			<div class="modal-body">
+				<p>Some text in the modal.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+</body>
+</html>

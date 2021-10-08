@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<script src="./js/jquery.min.js"></script>
+		<script src="./js/jquery.form.js"></script>
+		<script src="./js/jquery-ui.js"></script>
+		<script src="./js/Chart.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./js/bootstrap.bundle.min.js"></script>
+		<script src="./js/ata/index.js"></script>
+	</head>
+	<body>
+		<div id="E">Element</div>
+		<script>
+			var Element;
+			ATA.Setups.push(function(){
+				ATA.Libraries.Extend("Crypto");
+				Element = document.all.E;
+				//ATA.Include("./js/");
+			});
+			ATA.Setup();
+		</script>
+	</body>
+</html>
