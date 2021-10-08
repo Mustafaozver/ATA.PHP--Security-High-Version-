@@ -1,0 +1,14 @@
+/**********************************************************************
+	Version: FreeRichTextEditor.com Version 1.00.
+	License: http://creativecommons.org/licenses/by/2.5/
+	Description: CSS example File.
+	Author: Copyright (C) 2006  Steven Ewing
+**********************************************************************/
+@import url(custom.css);
+
+body, p, td {
+ font-family: sagoe ui;
+ font-size: 12px;
+}
+
+
